@@ -4,6 +4,14 @@ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> | &copy; <a href="https://horstandr.github.io/portfolio">HorstAndr</a>'
 }).addTo(map);
 
+const locationIcon = L.icon({
+    iconUrl:'current_location.png',
+
+    iconSize: [48,48]
+});
+
+
+
 // Get location from user
 map.locate({setView: true, maxZoom: 12});
 

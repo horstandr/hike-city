@@ -1,3 +1,10 @@
+const flagIcon = L.icon({
+    iconUrl:'map_flag.png',
+
+    iconSize: [48,48],
+    iconAnchor:[24,48]
+});
+
 
 async function getRandomStreet(method, info) {
 
@@ -54,8 +61,10 @@ async function getRandomStreet(method, info) {
     const randomWay = ways[Math.floor(Math.random() * ways.length)];
     const latlngs = randomWay.geometry.map(pt => [pt.lat, pt.lon]);
 
-    L.polyline(latlngs, { color: 'blue' }).addTo(map);
-    L.marker(latlngs[0]).addTo(map);
+    L.polyline(latlngs, { color: 'red' }).addTo(map);
+    L.marker(latlngs[0], {icon:flagIcon})
+        .bindPopup('You need to get here!')
+        .addTo(map);
 }
 
 
