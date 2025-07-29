@@ -12,10 +12,10 @@
     }
 
     .leaflet-control-compass {
-      background: rgba(255, 255, 255, 0.8);
-      padding: 4px;
-      border-radius: 4px;
-      box-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
+      background: rgba(255, 255, 255, 0.85);
+      padding: 6px;
+      border-radius: 8px;
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
     }
 
     .leaflet-control-compass img {
@@ -25,22 +25,35 @@
       transform-origin: center center;
       pointer-events: none;
     }
+
+    #enable-compass {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 1000;
+      padding: 10px 16px;
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+    }
   </style>
 </head>
 <body>
   <div id="map"></div>
+  <button id="enable-compass">Enable Compass</button>
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
-    // Initialize Leaflet map
-    const map = L.map('map').setView([40.7128, -74.0060], 13);
+    const map = L.map('map').setView([40.7128, -74.0060], 13); // New York
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
     // Create compass control
     const CompassControl = L.Control.extend({
-      onAdd: function(map) {
+      onAdd: function () {
         const container = L.DomUtil.create('div', 'leaflet-control-compass');
         const img = L.DomUtil.create('img', '', container);
         img.src = 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Compass_rose_light.png/200px-Compass_rose_light.png';
@@ -49,32 +62,43 @@
       }
     });
 
-    if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-  DeviceOrientationEvent.requestPermission().then(response => {
-    if (response === 'granted') {
-      window.addEventListener('deviceorientation', handleOrientation);
-    }
-  }).catch(console.error);
-} else {
-  window.addEventListener('deviceorientation', handleOrientation);
-}
-
-
-    const compass = new CompassControl({ position: 'topright' });
-    map.addControl(compass);
-
-    // DeviceOrientation handling
-    window.addEventListener('deviceorientationabsolute', handleOrientation, true);
-    window.addEventListener('deviceorientation', handleOrientation, true); // fallback
+    map.addControl(new CompassControl({ position: 'topright' }));
 
     function handleOrientation(event) {
-      const heading = event.alpha !== null ? event.alpha : 0; // degrees from north
-
-      const compassImg = document.getElementById('compass-needle');
-      if (compassImg) {
-        compassImg.style.transform = `rotate(${-heading}deg)`; // rotate image to simulate needle pointing north
+      const heading = event.alpha;
+      if (typeof heading === 'number') {
+        const compassImg = document.getElementById('compass-needle');
+        if (compassImg) {
+          compassImg.style.transform = `rotate(${-heading}deg)`;
+        }
       }
     }
+
+    function enableDeviceOrientation() {
+      const button = document.getElementById('enable-compass');
+
+      if (typeof DeviceOrientationEvent !== 'undefined' &&
+          typeof DeviceOrientationEvent.requestPermission === 'function') {
+        // iOS 13+ requires permission
+        DeviceOrientationEvent.requestPermission()
+          .then(permissionState => {
+            if (permissionState === 'granted') {
+              window.addEventListener('deviceorientation', handleOrientation, true);
+              button.style.display = 'none';
+            } else {
+              alert('Permission denied. Cannot access compass heading.');
+            }
+          })
+          .catch(console.error);
+      } else {
+        // Non-iOS devices
+        window.addEventListener('deviceorientationabsolute', handleOrientation, true);
+        window.addEventListener('deviceorientation', handleOrientation, true);
+        button.style.display = 'none';
+      }
+    }
+
+    document.getElementById('enable-compass').addEventListener('click', enableDeviceOrientation);
   </script>
 </body>
 </html>
