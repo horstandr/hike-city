@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Map</title>
+    <link rel="stylesheet" href="formStyle.css">
+</head>
+<body>
+    <h1>Welcome!</h1>
+    <form id="mainForm">
+        <p>Please select your preferred method of exploration:</p>
+        <input type="radio" name="method" id="latlng" value="latlng">
+        <label for="latlng">
+            Latitude and Longitude
+        </label>
+        <br>
+        <input type="radio" name="method" id="city" value="city">
+        <label for="city">
+            Input a city
+        </label>
+        <br>
+    </form>
+    <div id="specialized-forms" class="">
+        <form name="latlng-form" method="">
+            <label for="latlng-range">What is the maximum distance you are able to explore?</label><br>
+            <input type="range" name="latlng-range" id="latlng-range" min="1" max="10" step="0.1"><label id="latlng-range-output">5.5km</label><br>
+            <button onclick="handleFormSubmit(event);">Start</button> 
+        </form>
+        <form name="city-form" method="">
+            <label for="city">Please input the city you would like to explore:</label><br>
+            <input type="text" name="city-input" id="city-input"><br>
+            <button onclick="handleFormSubmit(event);">Start</button>
+        </form>
+    </div>
+</body>
+<script src="formHandler.js"></script>
+</html>

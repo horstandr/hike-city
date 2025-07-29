@@ -1,0 +1,7 @@
+body > * {
+    margin-bottom: 50px;
+}
+
+#specialized-forms form {display: none;}
+#specialized-forms.f-latlng form[name=latlng-form],
+#specialized-forms.f-city form[name=city-form] {display: block;}
