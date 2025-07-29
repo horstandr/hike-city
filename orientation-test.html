@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <div id="display"></div>
+    <button id="startbtn">h</button>
+  </body>
+  <script>
+    const startBtn = document.getElementById('startbtn');
+        let compass;
+        const isIOS = !(
+        navigator.userAgent.match(/(iPod|iPhone|iPad)/) &&
+        navigator.userAgent.match(/AppleWebKit/)
+        );
+        function init() {
+  startBtn.addEventListener("click", startCompass);
+}
+
+function startCompass() {
+  if (isIOS) {
+    DeviceOrientationEvent.requestPermission()
+      .then((response) => {
+        if (response === "granted") {
+          window.addEventListener("deviceorientation", handler, true);
+        } else {
+          alert("has to be allowed!");
+        }
+      })
+      .catch(() => alert("not supported"));
+  } else {
+    window.addEventListener("deviceorientationabsolute", handler, true);
+  }
+}
+
+function handler(e) {
+  compass = e.webkitCompassHeading || Math.abs(e.alpha - 360);
+  document.getElementById('display').innerHTML = compass+'deg';
+}
+
+init();
+    </script>
+</html>
