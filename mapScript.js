@@ -11,14 +11,13 @@ const locationIcon = L.icon({
 });
 
 
-
 // Get location from user
 map.locate({setView: true, maxZoom: 12});
 
 // Happens on location success.
 function onLocationFound(e) {
     
-    L.marker(e.latlng).addTo(map);
+    L.marker(e.latlng, {icon: locationIcon}).addTo(map);
     
 }
 map.on('locationfound', onLocationFound);
