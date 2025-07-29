@@ -1,93 +1,80 @@
 <!DOCTYPE html>
 <html>
-  <body>
-    <div class="compass">
-  <div class="arrow"></div>
-  <div class="compass-circle"></div>
-  <div class="my-point"></div>
-</div>
-<button class="start-btn">Start compass</button>
-  </body>
+<head>
+  <title>Leaflet Compass with Device Heading</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
   <style>
-    .compass {
-  position: relative;
-  width: 320px;
-  height: 320px;
-  border-radius: 50%;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
-  margin: auto;
-}
+    #map {
+      height: 100vh;
+    }
 
-.compass > .arrow {
-  position: absolute;
-  width: 0;
-  height: 0;
-  top: -20px;
-  left: 50%;
-  transform: translateX(-50%);
-  border-style: solid;
-  border-width: 30px 20px 0 20px;
-  border-color: red transparent transparent transparent;
-  z-index: 1;
-}
+    .leaflet-control-compass {
+      background: rgba(255, 255, 255, 0.8);
+      padding: 4px;
+      border-radius: 4px;
+      box-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
+    }
 
-.compass > .compass-circle,
-.compass > .my-point {
-  position: absolute;
-  width: 80%;
-  height: 80%;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  transition: transform 0.1s ease-out;
-  background: url(https://cdn.onlinewebfonts.com/svg/img_467023.png) center
-    no-repeat;
-  background-size: contain;
-}
-
-.compass > .my-point {
-  opacity: 0;
-  width: 20%;
-  height: 20%;
-  background: rgb(8, 223, 69);
-  border-radius: 50%;
-  transition: opacity 0.5s ease-out;
-}
+    .leaflet-control-compass img {
+      width: 60px;
+      height: 60px;
+      transition: transform 0.2s linear;
+      transform-origin: center center;
+      pointer-events: none;
+    }
   </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
-    const compassCircle = document.querySelector(".compass-circle");
-const startBtn = document.querySelector(".start-btn");
-const myPoint = document.querySelector(".my-point");
-let compass;
-const isIOS = !(
-  navigator.userAgent.match(/(iPod|iPhone|iPad)/) &&
-  navigator.userAgent.match(/AppleWebKit/)
-);
-function init() {
-  startBtn.addEventListener("click", startCompass);
+    // Initialize Leaflet map
+    const map = L.map('map').setView([40.7128, -74.0060], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Create compass control
+    const CompassControl = L.Control.extend({
+      onAdd: function(map) {
+        const container = L.DomUtil.create('div', 'leaflet-control-compass');
+        const img = L.DomUtil.create('img', '', container);
+        img.src = 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Compass_rose_light.png/200px-Compass_rose_light.png';
+        img.id = 'compass-needle';
+        return container;
+      }
+    });
+
+    if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+  DeviceOrientationEvent.requestPermission().then(response => {
+    if (response === 'granted') {
+      window.addEventListener('deviceorientation', handleOrientation);
+    }
+  }).catch(console.error);
+} else {
+  window.addEventListener('deviceorientation', handleOrientation);
 }
 
-function startCompass() {
-  if (isIOS) {
-    DeviceOrientationEvent.requestPermission()
-      .then((response) => {
-        if (response === "granted") {
-          window.addEventListener("deviceorientation", handler, true);
-        } else {
-          alert("has to be allowed!");
-        }
-      })
-      .catch(() => alert("not supported"));
-  } else {
-    window.addEventListener("deviceorientationabsolute", handler, true);
-  }
-}
 
-function handler(e) {
-  compass = e.webkitCompassHeading || Math.abs(e.alpha - 360);
-  compassCircle.style.transform = `translate(-50%, -50%) rotate(${-compass}deg)`;
-}
+    const compass = new CompassControl({ position: 'topright' });
+    map.addControl(compass);
 
-init();
-    </script>
+    // DeviceOrientation handling
+    window.addEventListener('deviceorientationabsolute', handleOrientation, true);
+    window.addEventListener('deviceorientation', handleOrientation, true); // fallback
+
+    function handleOrientation(event) {
+      const heading = event.alpha !== null ? event.alpha : 0; // degrees from north
+
+      const compassImg = document.getElementById('compass-needle');
+      if (compassImg) {
+        compassImg.style.transform = `rotate(${-heading}deg)`; // rotate image to simulate needle pointing north
+      }
+    }
+  </script>
+</body>
 </html>
